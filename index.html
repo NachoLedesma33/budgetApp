@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="./style.css" />
-    <link rel="icon" type="image/png" href="./icon/icons8-presupuesto-60.png" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <link rel="icon" type="image/png" href="./icon/icons8-presupuesto-60.png">
     <title>budgets</title>
   </head>
   <body onload="loadApp()">
@@ -16,7 +16,7 @@
           <div class="budget_income--text">Incomes</div>
           <div class="right">
             <div class="budget_income--value" id="incomes">+4,000.00</div>
-            <div class="budget_income--percent">&nbsp</div>
+            <div class="budget_income--percent">&nbsp;</div>
           </div>
         </div>
         <div class="budget_expenses cleanstyles">
@@ -28,22 +28,33 @@
         </div>
       </div>
     </div>
- 
-    <form id="form" onsubmit="return false;">
+
+    <form id="form" onsubmit="event.preventDefault(); addData(); return false;">
       <div class="add">
         <div class="add_container">
           <select name="type" id="type">
             <option value="income" selected>+</option>
             <option value="expense">-</option>
           </select>
-          <input type="text" class="add_description" name="description" id="description" placeholder="Description" required>
-          <input type="number"  class="add_value" name="value" id="value" placeholder="Value" step="any" required>
-          <button type="button" onclick="addData()">Add</button>
+          <input
+            type="text"
+            class="add_description"
+            name="description"
+            id="description"
+            placeholder="Description"
+            required>
+          <input
+            type="number"
+            class="add_value"
+            name="value"
+            id="value"
+            placeholder="Value"
+            step="any"
+            required>
+          <button type="submit">Add</button>
         </div>
       </div>
     </form>
-    
-
     <div class="container cleanstyles">
       <div class="income">
         <h2 class="income_title">Incomes</h2>
@@ -53,7 +64,7 @@
             <div class="right cleanstyles">
               <div class="element_value">+ 200.00</div>
               <div class="element_delete">
-                <button class="element_delete--btn">
+                <button type="button" aria-label="Eliminar" class="element_delete--btn">
                   <ion-icon name="close-circle-outline"></ion-icon>
                 </button>
               </div>
@@ -70,24 +81,25 @@
               <div class="element_value">- 900.00</div>
               <div class="element_percent">41%</div>
               <div class="element_delete">
-                <button class="element_delete--btn">
+                <button type="button" aria-label="Eliminar" class="element_delete--btn">
                   <ion-icon name="close-circle-outline"></ion-icon>
                 </button>
               </div>
+            </div>
+          </div>
+          <div class="element cleanstyles">
+            <div class="element_description">Clothes</div>
+            <div class="right cleanstyles">
+              <div class="element_value">- 50.00</div>
+              <div class="element_percent">2.7%</div>
+              <div class="element_delete">
+                <button type="button" aria-label="Eliminar" class="element_delete--btn">
+                  <ion-icon name="close-circle-outline"></ion-icon>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-        <div class="element cleanstyles">
-          <div class="element_description">Clothes</div>
-          <div class="right cleanstyles">
-            <div class="element_value">- 50.00</div>
-            <div class="element_percent">2.7%</div>
-            <div class="element_delete">
-              <button class="element_delete--btn">
-                <ion-icon name="close-circle-outline"></ion-icon>
-              </button>
-            </div>
-        </div>
-      </div>
       </div>
     </div>
 
