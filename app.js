@@ -1,57 +1,89 @@
-const incomes = [
-  new Income("Salary", 2100),
-  new Income("car", 1500),
-  new Income("DJ", 1500),
-];
-const expenses = [
-  new Expense("rent", 1000),
-  new Expense("food", 300),
-  new Expense("dog", 50),
-];
+const incomes = [];
+const expenses = [];
+let initialBudget = 0;
 
 let loadApp = () => {
+  // Set up event listeners
+  document
+    .getElementById("set-budget")
+    .addEventListener("click", setInitialBudget);
+  document
+    .getElementById("initial-budget")
+    .addEventListener("keypress", function (e) {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        setInitialBudget();
+      }
+    });
+
+  // Load empty data
   loadHeader();
   loadIncomes();
   loadExpenses();
 };
 
-let totalIncomes = () => {
-  let totalIncome = 0;
-  for (let income of incomes) {
-    totalIncome += income.value;
+let setInitialBudget = () => {
+  const budgetInput = document.getElementById("initial-budget");
+  const budgetValue = parseFloat(budgetInput.value);
+
+  if (!isNaN(budgetValue) && budgetValue >= 0) {
+    initialBudget = budgetValue;
+    budgetInput.disabled = true;
+    document.getElementById("set-budget").disabled = true;
+    loadHeader();
+  } else {
+    alert("Please enter a valid budget amount");
   }
-  return totalIncome;
+};
+
+let totalIncomes = () => {
+  return incomes.reduce((total, income) => total + income.value, 0);
 };
 let totalExpenses = () => {
-  let totalExpense = 0;
-  for (let expense of expenses) {
-    totalExpense += expense.value;
-  }
-  return totalExpense;
+  return expenses.reduce((total, expense) => total + expense.value, 0);
 };
 
 let loadHeader = () => {
-  let budget = totalIncomes() - totalExpenses();
-  let percentage = (totalExpenses() / totalIncomes()) * 100;
-  document.getElementById("budgets").innerHTML = coinFormat(budget);
-  document.getElementById("percents").innerHTML = percentage.toFixed(2) + "%";
-  document.getElementById("incomes").innerHTML = coinFormat(totalIncomes());
-  document.getElementById("expenses").innerHTML = coinFormat(totalExpenses());
+  const totalIncome = totalIncomes();
+  const totalExpense = totalExpenses();
+  const availableBudget = initialBudget + totalIncome - totalExpense;
+  const totalBudget = initialBudget + totalIncome;
+  const expensePercentage = totalBudget > 0 ? (totalExpense / totalBudget) * 100 : 0;
+
+  document.getElementById("budgets").textContent = coinFormat(availableBudget);
+  document.getElementById("percents").textContent = expensePercentage.toFixed(2) + "%";
+  document.getElementById("incomes").textContent = coinFormat(totalIncome);
+  document.getElementById("expenses").textContent = coinFormat(totalExpense);
 };
 const coinFormat = (value) => {
   return value.toLocaleString("en-US", {
     style: "currency",
     currency: "USD",
-    minimunFractionDigits: 2,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   });
 };
 
 const loadIncomes = () => {
   let incomesHTML = "";
   for (let income of incomes) {
-    incomesHTML += setupIncomesHTML(income);
+    incomesHTML += `
+    <div class="element cleanstyles">
+      <div class="element_description">${income.description}</div>
+      <div class="right cleanstyles">
+        <div class="element_value">+ ${income.value.toFixed(2)}</div>
+        <div class="element_delete">
+          <button type="button" aria-label="Eliminar" class="element_delete--btn" onclick="deleteIncome(${
+            income.id
+          })">
+            <ion-icon name="close-circle-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div>`;
   }
-  document.getElementById("list-incomes").innerHTML = incomesHTML;
+  document.getElementById("list-incomes").innerHTML =
+    incomesHTML || "<div class='no-items'>No income recorded</div>";
 };
 
 const setupIncomesHTML = (income) => {
@@ -81,10 +113,30 @@ const deleteIncome = (id) => {
 
 const loadExpenses = () => {
   let expensesHTML = "";
+  const totalExpense = totalExpenses();
+  const totalBudget = initialBudget + totalIncomes();
+
   for (let expense of expenses) {
-    expensesHTML += setupExpensesHTML(expense);
+    const percentage = totalBudget > 0 ? ((expense.value / totalBudget) * 100).toFixed(2) : 0;
+
+    expensesHTML += `
+    <div class="element cleanstyles">
+      <div class="element_description">${expense.description}</div>
+      <div class="right cleanstyles">
+        <div class="element_value">- ${expense.value.toFixed(2)}</div>
+        <div class="element_percent">${percentage}%</div>
+        <div class="element_delete">
+          <button type="button" aria-label="Eliminar" class="element_delete--btn" onclick="deleteExpense(${
+            expense.id
+          })">
+            <ion-icon name="close-circle-outline"></ion-icon>
+          </button>
+        </div>
+      </div>
+    </div>`;
   }
-  document.getElementById("list_expenses").innerHTML = expensesHTML;
+  document.getElementById("list_expenses").innerHTML =
+    expensesHTML || "<div class='no-items'>No expenses recorded</div>";
 };
 
 const setupExpensesHTML = (expense) => {
@@ -115,19 +167,31 @@ const deleteExpense = (id) => {
 };
 
 let addData = () => {
-  let form = document.forms["form"];
-  let type = form["type"];
-  let description = form["description"];
-  let value = form["value"];
-  if (description.value !== "" && value.value !== "") {
-    if (type.value === "income") {
-      incomes.push(new Income(description.value, +value.value));
+  event.preventDefault(); // Prevenir el comportamiento por defecto del formulario
+
+  let type = document.getElementById("type").value;
+  let description = document.getElementById("description").value.trim();
+  let value = parseFloat(document.getElementById("value").value);
+
+  if (description && !isNaN(value) && value > 0) {
+    if (type === "income") {
+      let newIncome = new Income(description, value);
+      incomes.push(newIncome);
       loadHeader();
       loadIncomes();
-    } else if (type.value === "expense") {
-      expenses.push(new Expense(description.value, +value.value));
+    } else if (type === "expense") {
+      let newExpense = new Expense(description, value);
+      expenses.push(newExpense);
       loadHeader();
       loadExpenses();
     }
+
+    // Limpiar el formulario
+    document.getElementById("description").value = "";
+    document.getElementById("value").value = "";
+    document.getElementById("type").value = "";
+    document.getElementById("description").focus();
   }
+
+  return false;
 };
